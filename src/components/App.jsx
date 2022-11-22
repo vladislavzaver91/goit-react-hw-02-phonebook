@@ -1,82 +1,84 @@
 import { PropTypes } from 'prop-types';
 import { nanoid } from 'nanoid';
 import React, { Component } from "react";
-import { ContactList } from './ContactForm/Contact';
-
-
-
+import { ContactForm } from "./ContactForm/ContactForm";
+import { Filter } from "./Filter/Filter";
+import { ContactList } from './ContactList/ContactList';
 
 export class App extends Component {
 
   state = {
-    contacts: [],
-    name: ''
+    contacts: [
+    {id: 'id-1', name: 'Rosie Simpson', number: '459-12-56'},
+    {id: 'id-2', name: 'Hermione Kline', number: '443-89-12'},
+    {id: 'id-3', name: 'Eden Clements', number: '645-17-79'},
+    {id: 'id-4', name: 'Annie Copeland', number: '227-91-26'},
+  ],
+    filter: '',
   };
 
-  handleNameChange = ev => {
-    this.setState({name: ev.currentTarget.value});
+  formSubmitHandler = data => {
+    console.log(data);
   }
 
-  handleSubmit = ev => {
-    ev.preventDefault();
-
-    console.log(this.state);
-
-    this.addContacts(this.state.name);
-
-    this.reset();
-  }
-
-  reset = () => {
-    this.setState({name: ''})
-  }
-
-    addContacts = name => {
-      console.log(name);
+  addContacts = ({name, number}) => {
 
       const contactId = nanoid(10);
 
       const contact = {
-        contactId,
+        id: contactId,
         name,
+        number,
       };
 
-      this.setState(prevState => ({
-        contacts: [contact, ...prevState.contacts],
-      }));
-    };
+      const normalizedName = name.toLowerCase();
+      const findedContact = this.state.contacts.find(contact => contact.name.toLowerCase().includes(normalizedName));
+
+      if (findedContact) {
+        console.log('alert');
+      } else {
+        this.setState(prevState => ({
+          contacts: [contact, ...prevState.contacts],
+        }));
+      };
+  };
+
+  changeFilter = ev => {
+    this.setState({
+      filter: ev.currentTarget.value
+    });
+  };
+
+  getFiltredContacts = () => {
+    const { filter, contacts } = this.state;
+    const normalizedFilter = filter.toLowerCase();
+    return contacts.filter(contact => contact.name.toLowerCase().includes(normalizedFilter));
+  }
 
   render() {
-    const { contacts } = this.state;
+    const { filter } = this.state;
+
+    const filtredContacts = this.getFiltredContacts();
+
     return (
       <div>
         <h1>Phonebook</h1>
-      <form onSubmit={this.handleSubmit}>
-      <label> Name
-      <input
-        type="text"
-        name="name"
-        value={this.state.name}
-        onChange={this.handleNameChange}
-        pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-        title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-        required
-      />
-      </label>
-      <button type="submit">Add contacts</button>
-    </form>
-    <h2>Contacts</h2>
-    <ContactList contacts={contacts}/>
-    </div>
+        <ContactForm onSubmit={this.formSubmitHandler} addContacts={this.addContacts}/>
+        <h2>Contacts</h2>
+        <Filter value={filter} onChange={this.changeFilter}/>
+        <ContactList contacts={filtredContacts}/>
+      </div>
     )
   }
 }
 
-
-// App.propTypes = {
-//   state: PropTypes.shape({
-//     good: PropTypes.number.isRequired,
-//     neutral: PropTypes.number.isRequired,
-//     bad: PropTypes.number.isRequired,
-//   })
-// }
+App.propTypes = {
+  state: PropTypes.shape({
+    contacts: PropTypes.arrayOf(PropTypes.exact({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      number: PropTypes.string.isRequired,
+    })),
+    filter: PropTypes.string.isRequired,
+  })
+};
