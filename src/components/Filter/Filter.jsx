@@ -1,14 +1,15 @@
 import React from "react";
+import { FormTitle, SeacrhInput } from "./Filter.styled";
 
 export function Filter({value, onChange}) {
     return (
-        <label> Find contacts by name
-            <input 
+        <FormTitle> Find contacts by name
+            <SeacrhInput 
                 type="text"
                 name="filter"
                 value={value}
                 onChange={onChange}
             />
-        </label>
+        </FormTitle>
     )
 };

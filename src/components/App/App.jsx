@@ -1,9 +1,13 @@
 import { PropTypes } from 'prop-types';
 import { nanoid } from 'nanoid';
 import React, { Component } from "react";
-import { ContactForm } from "./ContactForm/ContactForm";
-import { Filter } from "./Filter/Filter";
-import { ContactList } from './ContactList/ContactList';
+import { Container } from './App.styled';
+
+import { ContactForm } from "../ContactForm";
+import { Filter } from "../Filter";
+import { ContactList } from '../ContactList';
+
+
 
 export class App extends Component {
 
@@ -35,13 +39,19 @@ export class App extends Component {
       const findedContact = this.state.contacts.find(contact => contact.name.toLowerCase().includes(normalizedName));
 
       if (findedContact) {
-        console.log('alert');
+        alert(`${findedContact.name} is already in contacts`)
       } else {
         this.setState(prevState => ({
           contacts: [contact, ...prevState.contacts],
         }));
       };
   };
+
+  deleteContact = (contactID) => {
+    this.setState(prevState => ({
+      contacts: prevState.contacts.filter(contact => contact.id !== contactID),
+    }));
+  }
 
   changeFilter = ev => {
     this.setState({
@@ -61,13 +71,13 @@ export class App extends Component {
     const filtredContacts = this.getFiltredContacts();
 
     return (
-      <div>
+      <Container>
         <h1>Phonebook</h1>
         <ContactForm onSubmit={this.formSubmitHandler} addContacts={this.addContacts}/>
         <h2>Contacts</h2>
         <Filter value={filter} onChange={this.changeFilter}/>
-        <ContactList contacts={filtredContacts}/>
-      </div>
+        <ContactList contacts={filtredContacts} onDeleteContact={this.deleteContact}/>
+      </Container>
     )
   }
 }
